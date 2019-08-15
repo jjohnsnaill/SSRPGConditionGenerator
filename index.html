@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+
+body {
+	background-color:black;
+	color:white;
+	font-family:Lucida Console;
+	text-align:center;
+	height: 440px;
+	width: 600px;
+	font-size: xx-large;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin-top: -220px;
+	margin-left: -300px;
+}
+
+</style>
+
+<body>
+
+<big>_@_V</big><br><br>
+Stone Story RPG<br>Time Script Generator<br><br>
+Start at: <input type="number" id="start" value="60"><br>
+Delay: <input type="number" id="delay"><br>
+Stop at: <input type="number" id="stop" value="6000"><br>
+<input type="button" value="Generate script" onclick="generateScript()"><br>
+<textarea id="script" rows="8" cols="48"></textarea>
+
+<script>
+function generateScript() {
+	var start = Number(document.getElementById("start").value);
+	var delay = Number(document.getElementById("delay").value);
+	var stop = Number(document.getElementById("stop").value);
+	if (delay != 0) {
+		var time = start;
+		var script = "?";
+		var count = 0;
+		while (time <= stop) {
+			if (time > start) {
+				script += "|";
+			}
+			script += "time=" + time;
+			time += delay;
+			if (++count == 4 && time <= stop) {
+				script += "\n^";
+				count = 0;
+			}
+		}
+		document.getElementById("script").value = script;
+		var copyText = document.getElementById("script");
+		copyText.select();
+		document.execCommand("copy");
+	}
+}
+</script>
+
+</body>
+
+</html>

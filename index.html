@@ -8,13 +8,13 @@ body {
 	color:white;
 	font-family:Lucida Console;
 	text-align:center;
-	height: 440px;
+	height: 500px;
 	width: 900px;
 	font-size: xx-large;
 	position: fixed;
 	top: 50%;
 	left: 50%;
-	margin-top: -220px;
+	margin-top: -250px;
 	margin-left: -450px;
 }
 
@@ -23,8 +23,19 @@ input {
 	top: -4px;
 }
 
-input[type=number] {
-	width: 60px;
+input[type=text] {
+	background-color:black;
+	border:1px solid #ffffff;
+	color:white;
+	font-family:Lucida Console;
+	text-align:center;
+	font-size: large;
+	width: 200px;
+	height: 26px;
+}
+
+textarea {
+	resize: none;
 }
 
 div {
@@ -38,43 +49,97 @@ div {
 <body>
 
 <big>_@_V</big><br><br>
-Stone Story RPG<br>Time If Statement Generator<br><br>
-Start at: <input type="number" id="start" value="60"> Stop at: <input type="number" id="stop" value="6000"><br>
-Delay: <input type="number" id="delay"> Indent: <input type="number" id="indent"><br>
+Stone Story RPG<br>
+<input type="text" id="variable" value="time"> If Statement Generator<br><br>
+Start at: <input type="number" style="width: 60px" id="start" value="60"> Stop at: <input type="number" style="width: 60px" id="stop" value="6000"><br>
+Delay: <input type="number" style="width: 60px" id="delay"> Indent: <input type="number" style="width: 60px" id="indent"><br>
+Split Conditions: <input type="checkbox" id="split"><br>
 <div>Execute:<textarea id="execute" rows="8" cols="48"></textarea></div>
 <div><input type="button" value="Generate script" onclick="generateScript()"><textarea id="script" rows="8" cols="48"></textarea></div>
 
 <script>
 function generateScript() {
+	
+	var variable = document.getElementById("variable").value;
+	
 	var start = Number(document.getElementById("start").value);
 	var delay = Number(document.getElementById("delay").value);
 	var stop = Number(document.getElementById("stop").value);
+	
 	var indent = Number(document.getElementById("indent").value);
 	var execute = document.getElementById("execute").value;
-	if (delay != 0) {
-		var time = start;
+	var split = document.getElementById("split").checked;
+	
+	var numberLength = start < stop ? document.getElementById("stop").value.length : document.getElementById("start").value.length;
+	
+	if (delay != 0 && start != stop) {
+		
+		var counter = start;
+		var newLineCounter = 0;
 		var script = " ".repeat(indent) + "?";
-		var count = 0;
-		while (time <= stop) {
-			if (time > start) {
-				script += "|";
+		
+		if (start < stop) {
+			while (counter <= stop) {
+				if (split && execute != "") {
+					script += variable + "<" + (counter + 1);
+					var indentString = "\n" + " ".repeat(indent + 1);
+					var counterPadded = counter.toString().padStart(numberLength, "0");
+					script += indentString + execute.replace(/\r\n/g, indentString).replace(/[\r\n]/g, indentString).replace("<counter>", counterPadded);
+					counter += delay;
+					if (counter <= stop) {
+						script += "\n" + " ".repeat(indent) + "?";
+					}
+				} else {
+					if (counter > start) {
+						script += "|";
+					}
+					script += variable + "=" + counter;
+					counter += delay;
+					if (++newLineCounter == 4 && counter <= stop) {
+						script += "\n" + " ".repeat(indent) + "^";
+						newLineCounter = 0;
+					}
+				}
 			}
-			script += "time=" + time;
-			time += delay;
-			if (++count == 4 && time <= stop) {
-				script += "\n" + " ".repeat(indent) + "^";
-				count = 0;
+		} else {
+			while (counter >= stop) {
+				if (split && execute != "") {
+					script += variable + "<" + (counter + 1);
+					var indentString = "\n" + " ".repeat(indent + 1);
+					var counterPadded = counter.toString().padStart(numberLength, "0");
+					script += indentString + execute.replace(/\r\n/g, indentString).replace(/[\r\n]/g, indentString).replace("<counter>", counterPadded);
+					counter -= delay;
+					if (counter >= stop) {
+						script += "\n" + " ".repeat(indent) + "?";
+					}
+				} else {
+					if (counter < start) {
+						script += "|";
+					}
+					script += variable + "=" + counter;
+					counter -= delay;
+					if (++newLineCounter == 4 && counter >= stop) {
+						script += "\n" + " ".repeat(indent) + "^";
+						newLineCounter = 0;
+					}
+				}
 			}
+
 		}
-		if (execute != "") {
+		
+		if (!split && execute != "") {
 			var indentString = "\n" + " ".repeat(indent + 1);
 			script += indentString + execute.replace(/\r\n/g, indentString).replace(/[\r\n]/g, indentString);
 		}
+		
 		document.getElementById("script").value = script;
+		
 		var copyText = document.getElementById("script");
 		copyText.select();
 		document.execCommand("copy");
+		
 	}
+	
 }
 </script>
 
